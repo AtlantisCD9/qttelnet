@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/" >
-        <file>blackjack.scxml</file>
-    </qresource>
-</RCC>
