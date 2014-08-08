@@ -77,7 +77,7 @@
 #include <QtCore/QBuffer>
 #include <QtCore/QVarLengthArray>
 
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
 #  include <winsock2.h>
 #endif
 #if defined (Q_OS_UNIX)
@@ -97,12 +97,12 @@ class QtTelnetAuth
 public:
     enum State { AuthIntermediate, AuthSuccess, AuthFailure };
 
-    QtTelnetAuth(char code) : st(AuthIntermediate), cd(code) {};
+    QtTelnetAuth(char code) : st(AuthIntermediate), cd(code) {}
     virtual ~QtTelnetAuth() {}
 
     int code() const { return cd; }
     State state() const { return st; }
-    void setState(State state) { st = state; };
+    void setState(State state) { st = state; }
 
     virtual QByteArray authStep(const QByteArray &data) = 0;
 
@@ -159,6 +159,8 @@ namespace Common // RFC854
     const char IS    = 0;
     const char SEND  = 1;
 
+    const char TransmitBinary = 0; //RFC856 to be implemented
+
     const char Authentication = 37; // RFC1416,
                                     // implemented to always return NULL
     const char SuppressGoAhead = 3; // RFC858
@@ -190,11 +192,15 @@ namespace Common // RFC854
         case SEND:
             str = "SEND";
             break;
+        case quint8(IAC):
+            str = "IAC";
+            break;
         default:
             str = QString("Unknown common type (%1)").arg(op);
         }
         return str;
     }
+
     QString operationStr(char op)
     {
         QString str;
@@ -265,6 +271,9 @@ namespace Common // RFC854
             break;
         case Encrypt:
             str = "ENCRYPT";
+            break;
+        case TransmitBinary:
+            str = "TRANSMIT-BINARY";
             break;
         default:
             str = QString("Unknown option (%1)").arg(op);
